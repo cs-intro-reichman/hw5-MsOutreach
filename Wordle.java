@@ -33,16 +33,23 @@ public class Wordle {
     // Compute feedback for a single guess into resultRow.
     // G for exact match, Y if letter appears anywhere else, _ otherwise.
     public static void computeFeedback(String secret, String guess, char[] resultRow) {
-        for (int i = 0; i < guess.length(); i++) {
-            char guessedChar = guess.charAt(i);
-            if (guessedChar == secret.charAt(i)) {
+        if (secret == null || guess == null || resultRow == null) return;
+        // operate in same case
+        secret = secret.toUpperCase();
+        guess = guess.toUpperCase();
+
+        int n = Math.min(resultRow.length, guess.length());
+        for (int i = 0; i < n; i++) {
+            char g = guess.charAt(i);
+            if (i < secret.length() && secret.charAt(i) == g) {
                 resultRow[i] = 'G';
-            } else if (containsChar(secret, guessedChar)) {
+            } else if (containsChar(secret, g)) {
                 resultRow[i] = 'Y';
             } else {
                 resultRow[i] = '_';
             }
         }
+        for (int i = n; i < resultRow.length; i++) resultRow[i] = '_';
 		// ...
 		// you may want to use containsChar in your implementation
     }
@@ -99,7 +106,7 @@ public class Wordle {
         String[] dict = readDictionary("dictionary.txt");
 
         // Choose secret word
-        String secret = chooseSecretWord(dict);
+        String secret = chooseSecretWord(dict).toUpperCase();    // normalize secret to uppercase
 
         // Prepare 2D arrays for guesses and results
         char[][] guesses = new char[MAX_ATTEMPTS][WORD_LENGTH];
@@ -110,7 +117,6 @@ public class Wordle {
                 results[r][c] = '_';
             }
         }
-// ...existing
 
         // Prepare to read from the standart input 
         In inp = new In();
@@ -127,7 +133,9 @@ public class Wordle {
             while (!valid) {
                 System.out.print("Enter your guess (5-letter word): ");
                 guess = inp.readString();// ... read from the standrad input
-                
+                if (guess == null) continue;
+                guess = guess.trim().toUpperCase();                  // normalize guess
+
                 if (guess.length() != WORD_LENGTH) {
                     System.out.println("Invalid word. Please try again.");
                 } else {
@@ -136,7 +144,8 @@ public class Wordle {
             }
 
             // Store guess and compute feedback
-            // ... use storeGuess and computeFeedback
+            storeGuess(guess, guesses, attempt);
+            computeFeedback(secret, guess, results[attempt]);
 
             // Print board
             printBoard(guesses, results, attempt);
