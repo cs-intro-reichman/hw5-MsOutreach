@@ -160,7 +160,10 @@ public class Wordle {
         }
 
         if (!won) {
-            // ... follow the assignment examples for how the printing should look like
+            // show final board (last row index = MAX_ATTEMPTS - 1)
+            printBoard(guesses, results, MAX_ATTEMPTS - 1);
+            // reveal secret so automated tests detect the reveal
+            System.out.println("Sorry, you did not guess the word. The secret word was: " + secret);
         }
 
         inp.close();
